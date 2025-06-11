@@ -1,0 +1,383 @@
+/* ------------------- GLOBAL ------------------- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Sans', sans-serif;
+  background: white;
+  color: #161A1D;
+}
+
+/* ------------------- HEADER ------------------- */
+header {
+  background-color: #611232;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header img {
+  height: 48px;
+  width: auto;
+}
+
+header h1 {
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  margin-left: auto; /* Mueve el título a la derecha */
+}
+
+/* ------------------- MAIN LAYOUT ------------------- */
+.main-content {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 68px);
+  gap: 24px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.sidebar {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ------------------- MAPA ------------------- */
+#map {
+  flex-grow: 1;
+  height: 100%;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+}
+
+/* ------------------- CARD (CAPAS) ------------------- */
+.card-capas {
+  background: #fff;
+  border: 1px solid #DDD;
+  border-radius: 8px;
+  padding: 16px;
+  box-sizing: border-box;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.card-capas h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #161A1D;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #EEE;
+}
+
+/* ------------------- SWITCHES ------------------- */
+.switch {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  width: 40px;
+  height: 24px;
+  background-color: #DDDDDD;
+  border-radius: 100px;
+  position: relative;
+  margin-right: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 2px;
+  left: 2px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  transition: transform 0.3s;
+}
+
+.switch input:checked + .slider {
+  background-color: #F3F3F3;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(16px);
+}
+
+.layer-label {
+  font-size: 14px;
+}
+
+/* ------------------- LEYENDA ------------------- */
+.leyenda {
+  background: #fff;
+  border: 1px solid #DDD;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 300px);
+  overflow: hidden;
+}
+
+.leyenda-header {
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.leyenda h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #161A1D;
+  margin: 0;
+}
+
+.leyenda-content {
+  padding: 0 16px 16px 16px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.leyenda-item:last-child {
+  border-bottom: none;
+}
+
+.leyenda-item img {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.color-circulo {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: inline-block;
+  border: 1px solid #444;
+  flex-shrink: 0;
+}
+
+/* ------------------- RESPONSIVE ------------------- */
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .sidebar {
+    width: 100%;
+  }
+  
+  #map {
+    height: 60vh;
+  }
+  
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  header h1 {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}
+
+/* Contenedor principal del popup */
+/* Estilo del popup para asegurar visibilidad */
+.visible-popup .maplibregl-popup-content {
+  padding: 0 !important;
+  background: white !important;
+  border-radius: 8px !important;
+}
+
+/* Botón SUPER visible */
+.visible-close-btn {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  width: 24px !important;
+  height: 24px !important;
+  background: white!important; 
+  color: white !important;
+  border: none !important;
+  border-radius: 50% !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  line-height: 24px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  z-index: 1000 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.visible-close-btn:hover {
+  background: white !important;
+  transform: scale(1.1);
+}
+
+/* Contenido del popup */
+.popup-visible-content {
+  padding: 20px !important;
+  padding-top: 40px !important; /* Espacio extra para el botón */
+}
+
+.popup-visible-content h4 {
+  margin-top: 0 !important;
+  color: white !important;
+}
+
+.popup-visible-content p {
+  margin: 8px 0 !important;
+  color: white !important;
+}
+
+.mapa-filtro-container {
+  width: 100%;
+  background: #F2F2F2;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 15px 100px;
+  box-sizing: border-box;
+}
+
+.mapa-tabs {
+  display: flex;
+  justify-content: flex-start;
+  gap: 40px;
+}
+
+.mapa-tab {
+  padding: 8px 20px;
+  background: transparent;
+  color: #4D4D4D;
+  font-size: 18px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+}
+
+.mapa-tab.active {
+  background: #591A31;
+  color: #F9F5EC;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.dropdown-filtro {
+  margin-top: 20px;
+  padding: 0 10px;
+}
+
+.dropdown-filtro label {
+  font-weight: 600;
+  margin-right: 10px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.dropdown-filtro select {
+  padding: 6px 12px;
+  font-family: 'Montserrat', sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Estilos para el geocoder */
+#geocoder-container {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  z-index: 1;
+  width: 300px;
+  transition: all 0.3s ease;
+}
+
+#geocoder-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+#geocoder-icon img {
+  width: 20px;
+  height: 20px;
+}
+
+/* CSS para eliminar la lupa dentro del rectángulo del Geocoder */
+#geocoder-container .maplibregl-geocoder .maplibregl-geocoder--icon {
+  display: none !important;
+}
+
+/* Ajustar el campo de búsqueda después de eliminar la lupa */
+#geocoder-container .maplibregl-geocoder .maplibregl-geocoder--input {
+  padding-left: 10px;
+}
+
+/* Estilos para el marcador personalizado */
+.maplibregl-marker svg {
+  display: none;
+}
+
+.maplibregl-marker::before {
+  content: '';
+  display: block;
+  background-image: url('https://www.datosgeoespaciales.adyt.gob.mx/UPLOAD-MAPAS/transformador_espacial/assets/mapmarkers/location_new.svg');
+  background-size: cover;
+  width: 28px;
+  height: 42px;
+}
+
+/* Ajustes para el header y tabs */
+.mapa-filtro-container {
+  position: relative;
+  background: #F2F2F2;
+  padding-bottom: 16px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.mapa-tabs {
+  padding: 16px 40px;
+  justify-content: flex-start;
+}

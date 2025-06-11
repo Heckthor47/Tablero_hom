@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Tablero de Homicidios en la Ciudad de México">
+  <title>Homicidios: Zonas de Riesgo</title>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Noto+Sans&display=swap" rel="stylesheet">
+
+  <!-- CSS Base -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" />
+  <link rel="icon" href="imagenes/logo_2025.png" type="image/png">
+
+  <!-- Geocoder -->
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.css" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Noto Sans', sans-serif;
+      background: white;
+      color: #161A1D;
+    }
+
+    /* HEADER */
+    header {
+      background-color: #611232;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+
+    header img {
+      height: 48px;
+      width: auto;
+    }
+
+    header h1 {
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    /* BARRA DE FILTROS */
+    .mapa-filtro-container {
+      position: relative;
+      background: #F2F2F2;
+      padding: 16px 40px;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mapa-tabs {
+      display: flex;
+      gap: 24px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .mapa-tab {
+      font-size: 18px;
+      font-weight: 700;
+      color: #4D4D4D;
+      padding: 6px 24px;
+      border-radius: 10px 10px 0 0;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .mapa-tab.active {
+      background: #591A31;
+      color: #F9F5EC;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    }
+
+    /* CONTENIDO PRINCIPAL */
+    .main-content {
+      display: flex;
+      flex-direction: row;
+      height: calc(100vh - 68px);
+      gap: 24px;
+      padding: 24px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .sidebar {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+    .card-capas {
+      background: #fff;
+      border: 1px solid #DDD;
+      border-radius: 8px;
+      padding: 0;
+      box-sizing: border-box;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 300px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-capas .leyenda-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      padding: 16px 16px 12px 16px;
+      z-index: 2;
+      border-bottom: 1px solid #eee;
+      box-shadow: 0 4px 6px -6px rgba(0,0,0,0.1);
+    }
+
+    .card-capas .leyenda-contenido {
+      padding: 12px 16px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      max-height: 300px;
+    }
+
+    .card-capas h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: #161A1D;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #EEE;
+    }
+
+    .card-capas .leyenda-header h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #161A1D;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* LEYENDA */
+    .leyenda {
+      background: #fff;
+      border: 1px solid #DDD;
+      border-radius: 8px;
+      padding: 0;
+      box-sizing: border-box;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      max-height: calc(100vh - 300px);
+      overflow: hidden;
+    }
+
+    .leyenda-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      padding: 16px 16px 12px 16px;
+      margin: 0;
+      z-index: 2;
+      border-bottom: 1px solid #eee;
+      box-shadow: 0 4px 6px -6px rgba(0,0,0,0.1);
+    }
+
+    .leyenda h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #161A1D;
+      margin: 0;
+      padding: 0;
+    }
+
+    .leyenda-contenido {
+      overflow-y: auto;
+      max-height: 300px;
+      padding: 0 16px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+  
+    }
+
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      line-height: 1.4;
+      padding: 6px 0;
+    }
+
+    .leyenda-item img {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .color-circulo {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin-right: 10px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* Estilo unificado para ambos botones */
+    .map-control-button {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      position: absolute;
+      z-index: 1000;
+    }
+
+    /* Efectos hover y active */
+    .map-control-button:hover {
+      transform: scale(1.1);
+    }
+
+    .map-control-button:active {
+      transform: scale(0.95) translateY(1px);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    /* Iconos SVG */
+    .map-control-button svg, 
+    .map-control-button img {
+      width: 24px;
+      height: 24px;
+      color: #161A1D;
+    }
+
+    /* Posición específica para el geocoder (superior derecha) */
+    #geocoder-icon {
+      right: 35px;
+      top: 50px;
+    }
+
+    /* Posición específica para el reset (inferior derecha, misma X que geocoder) */
+    #reset-button {
+      right: 35px;
+      bottom: 50px;
+    }
+
+    /* SWITCHES */
+    .switch {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .switch input {
+      display: none;
+    }
+
+    .switch input:disabled + .slider {
+      background-color: #cccccc;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .slider {
+      width: 40px;
+      height: 24px;
+      background-color: #DDDDDD;
+      border-radius: 100px;
+      position: relative;
+      margin-right: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 2px;
+      left: 2px;
+      background-color: white;
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      transition: transform 0.3s;
+    }
+
+    .switch input:checked + .slider {
+      background-color: #F3F3F3;
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(16px);
+    }
+
+    /* MAPA */
+    #map {
+      flex-grow: 1;
+      height: 100%;
+      border-radius: 16px;
+      border: 1px solid #ddd;
+      position: relative;
+    }
+
+    /* GEOCODER INTEGRADO */
+    .geocoder-integrado {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      width: 300px;
+      border-radius: 500px;
+    }
+
+    .geocoder-integrado .maplibregl-geocoder {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 100px;
+      background: #F9F9F9;
+      border: 1px solid #DDDDDD;
+      box-shadow: none;
+      overflow: hidden;
+      border-radius: 500px;
+    }
+
+    .geocoder-integrado .maplibregl-geocoder--input {
+      padding: 8px 16px 8px 40px;
+      color: #AAAAAA;
+      font-family: 'Noto Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 22px;
+      background: transparent;
+      border: none;
+      height: 40px;
+      border-radius: 500px;
+    }
+
+    .geocoder-integrado .maplibregl-geocoder--icon {
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 1;
+      display: block !important;
+    }
+
+    .geocoder-integrado .maplibregl-geocoder--icon-search {
+      width: 20px;
+      height: 20px;
+      background: #161A1D;
+    }
+
+    .geocoder-integrado .maplibregl-geocoder--pin-right {
+      display: none;
+    }
+
+    #geocoder-icon {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    #geocoder-icon:hover {
+      transform: scale(1.1);
+    }
+
+    #geocoder-container .maplibregl-geocoder {
+      border-radius: 20px !important;
+      box-shadow: none !important;
+      border: 1px solid #ddd !important;
+      width: 300px;
+      z-index: 1100; /* Asegura que el geocoder esté por encima del marcador */
+    }
+
+    #geocoder-container .maplibregl-geocoder--input {
+      height: 40px;
+      padding-left: 40px !important;
+      font-family: 'Noto Sans', sans-serif;
+    }
+
+    #geocoder-container .maplibregl-geocoder--icon {
+      display: block !important;
+      left: 12px;
+    }
+
+    #geocoder-container {
+      outline: none;
+    }
+
+    /* Estilo para el marcador de ubicación */
+    .maplibregl-marker svg {
+      display: none;
+    }
+
+    .maplibregl-marker::before {
+      content: '';
+      display: block;
+      background-image: url('imagenes/ubi.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      width: 32px;
+      height: 48px;
+      transform: translate(-50%, -100%) rotateX(20deg) rotateY(5deg);
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    }
+
+    /* DROPDOWNS */
+    .dropdown-filtro {
+  background: #fff;
+  border: 1px solid #DDD;
+  border-radius: 8px;
+  /* margin: 16px 0; ← QUÍTALO */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+
+    .dropdown-filtro select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: 'Noto Sans', sans-serif;
+    }
+
+    .dropdown-filtro label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+        height: auto;
+      }
+      
+      .sidebar {
+        width: 100%;
+      }
+      
+      #map {
+        height: 60vh;
+      }
+      
+      .leyenda {
+        max-height: none;
+      }
+      
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .header-content {
+        margin-left: 0;
+        margin-top: 8px;
+      }
+      
+      .mapa-filtro-container {
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px;
+      }
+      
+      .mapa-tabs {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .geocoder-integrado {
+        width: calc(100% - 40px);
+        left: 20px;
+        right: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header>
+    <img src="imagenes/logo_gob.svg" alt="Logo">
+    <div class="header-content">
+      <h1>Homicidios: Zonas de Riesgo</h1>
+    </div>
+  </header>
+  
+  <!-- BARRA DE FILTROS -->
+  <div class="mapa-filtro-container">
+    <div class="mapa-tabs">
+      <div class="mapa-tab active" id="tab-nacional" onclick="seleccionarNivel('nacional')">Nacional</div>
+      <div class="mapa-tab" id="tab-estatal" onclick="seleccionarNivel('estatal')">Estatal</div>
+      <div class="mapa-tab" id="tab-municipal" onclick="seleccionarNivel('municipal')">Municipal</div>
+    </div>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="main-content">
+    <aside class="sidebar">
+      <!-- Dropdown para filtro estatal -->
+      <div id="dropdown-estatal" class="dropdown-filtro" style="display: none;">
+        <div style="padding: 16px;">
+          <label for="selector-estado">Selecciona un estado:</label>
+          <select id="selector-estado" onchange="filtrarPorEstado(this.value)">
+            <option value="">-- Estado --</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Dropdown para filtro municipal -->
+      <div id="dropdown-municipal" class="dropdown-filtro" style="display: none;">
+        <div style="padding: 16px;">
+          <label for="select-municipio">Selecciona un municipio:</label>
+          <select id="select-municipio" onchange="filtrarPorMunicipio(this.value)">
+            <option value="">-- Municipio --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card-capas">
+        <div class="leyenda-header">
+          <h4>Capas</h4>
+        </div>
+        <div class="leyenda-contenido" style="max-height: 300px; overflow-y: auto;">
+          <label class="switch">
+            <input type="checkbox" checked onchange="toggleLayer('calles', this)">
+            <span class="slider active"></span>
+            <span class="layer-label">Calles</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" onchange="toggleLayer('escuelas', this)">
+            <span class="slider"></span>
+            <span class="layer-label">Escuelas</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" onchange="toggleLayer('parques', this)">
+            <span class="slider"></span>
+            <span class="layer-label">Parques</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" onchange="toggleLayer('homicidios', this)">
+            <span class="slider"></span>
+            <span class="layer-label">Homicidios</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" onchange="toggleLayer('municipio-bordes', this)">
+            <span class="slider"></span>
+            <span class="layer-label">Municipio</span>
+          </label>
+        </div>
+      </div>      
+
+      <div class="leyenda">
+        <div class="leyenda-header">
+          <h4>Simbología</h4>
+        </div>
+        <div class="leyenda-contenido">
+          <div class="leyenda-item">
+            <img src="imagenes/school1.png" alt="Escuela" /> <span>Escuelas</span>
+          </div>
+          <div class="leyenda-item">
+            <img src="imagenes/tree-fill.png" alt="Parques"  /> <span>Parques</span>
+          </div>
+          <div class="leyenda-item">
+            <span class="color-circulo" style="background-color: #F9EFA5;"></span> <span>Homicidios registrados</span>
+          </div>
+          <div class="leyenda-item">
+            <span class="color-circulo" style="background-color: #F5011E;"></span> <span>Zona de alto riesgo</span>
+          </div>
+          <div class="leyenda-item">
+            <span class="color-circulo" style="background-color: #F58F7A;"></span> <span>Zona de riesgo medio</span>
+          </div>
+          <div class="leyenda-item">
+            <span class="color-circulo" style="background-color: #77B2DB;"></span> <span>Zona de riesgo bajo</span>
+          </div>
+          <div class="leyenda-item">
+            <span class="color-circulo" style="background-color: #207BF5;"></span> <span>Zona sin riesgo</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Botón de búsqueda (geocoder) -->
+    <div id="geocoder-icon" class="map-control-button" title="Buscar ubicación">
+      <img src="https://cdn-icons-png.flaticon.com/512/622/622669.png" alt="Lupa">
+    </div>
+
+    <!-- Botón de reset -->
+    <div id="reset-button" class="map-control-button" title="Volver a vista nacional">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12,10H24.1851L20.5977,6.4141,22,5,28,11,22,17l-1.4023-1.4146L24.1821,12H12a6,6,0,0,0,0,12h8v2H12a8,8,0,0,1,0-16Z" fill="currentColor"/>
+      </svg>
+    </div>
+
+    <!-- Contenedor del geocoder (oculto inicialmente) -->
+    <div id="geocoder-container" style="display: none; position: absolute; right: 20px; top: 55px; z-index: 1000; width: 300px;"></div>
+    
+    <!-- Map container -->
+    <div id="map"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+  <script src="scripts/capas.js"></script>
+  <script src="scripts/mapa_config.js"></script>
+  <script>
+    // Variable global para el marcador
+    let marker = null;
+    let geocoder = null;
+    let geojsonMunicipios = null;
+
+    fetch('data/municip.geojson')
+  .then(response => response.json())
+  .then(data => {
+      geojsonMunicipios = data;
+      console.log('Municipios cargados:', geojsonMunicipios);
+    })
+    .catch(error => console.error('Error cargando municipios:', error));
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+      cargarEstados(); 
+  const esperarMapa = setInterval(() => {
+    if (window.map && typeof window.map.on === 'function' && window.map.isStyleLoaded()) {
+      clearInterval(esperarMapa);
+      initGeocoder();
+      const estadoSeleccionado = document.getElementById('selector-estado').value;
+      if (!estadoSeleccionado) {
+        seleccionarNivel('nacional');
+      }
+      document.getElementById('reset-button').addEventListener('click', resetMapView);
+    }
+  }, 100);
+});
+          
+          // Asignar evento al botón de reset
+
+          function resetMapView() {
+  // 1. Eliminar marcador si existe
+  if (marker) {
+    marker.remove();
+    marker = null;
+  }
+  if (geocoder && typeof geocoder.clear === 'function') {
+    geocoder.clear();
+  }
+
+  // 2. Restablecer vista del mapa
+  map.flyTo({
+    center: [-102.5528, 23.6345],
+    zoom: 4.2,
+    speed: 1.2,
+    essential: true
+  });
+
+  // 3. Restablecer pestaña activa
+  seleccionarNivel('nacional');
+
+  // 4. Restablecer filtros
+  document.getElementById('selector-estado').value = '';
+  document.getElementById('select-municipio').value = '';
+
+  // 5. Ocultar el geocoder si está visible
+  document.getElementById('geocoder-container').style.display = 'none';
+
+  // 6. Efecto visual de click
+  const resetBtn = document.getElementById('reset-button');
+  resetBtn.style.transform = 'scale(0.95) translateY(1px)';
+  resetBtn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.2)';
+  
+  setTimeout(() => {
+    resetBtn.style.transform = 'scale(1)';
+    resetBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+  }, 200);
+}
+
+    function initGeocoder() {
+      const geocoderApi = {
+        forwardGeocode: async (config) => {
+          const features = [];
+          try {
+            const request = `https://nominatim.openstreetmap.org/search?q=${config.query}&format=geojson&polygon_geojson=1&addressdetails=1&countrycodes=MX&limit=10`;
+            const response = await fetch(request);
+            const geojson = await response.json();
+
+            for (const feature of geojson.features) {
+              const center = [
+                feature.bbox[0] + (feature.bbox[2] - feature.bbox[0]) / 2,
+                feature.bbox[1] + (feature.bbox[3] - feature.bbox[1]) / 2
+              ];
+              features.push({
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: center },
+                place_name: feature.properties.display_name,
+                properties: feature.properties,
+                text: feature.properties.display_name,
+                place_type: ['place'],
+                center
+              });
+            }
+          } catch (e) {
+            console.error(`Error en la búsqueda: ${e}`);
+          }
+          return { features };
+        }
+      };
+
+      geocoder = new MaplibreGeocoder(geocoderApi, {
+        maplibregl: maplibregl,
+        placeholder: "Buscar dirección...",
+        marker: true, // Usar el marcador por defecto (tu icono rojo)
+        limit: 10,
+        proximity: [-99.1332, 19.4326],
+      });
+
+      document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
+
+      // Manejar la selección de resultados
+      // Manejar la selección de resultados del geocoder
+geocoder.on('result', function(e) {
+  const lngLat = e.result.center;
+
+  // Mover el mapa a la ubicación
+  map.flyTo({ center: lngLat, zoom: 12 });
+
+  // 1. Cambiar a nivel municipal
+  seleccionarNivel('municipal');
+
+  // 2. Prender las capas necesarias
+  map.setLayoutProperty('municipio-bordes',  'visibility', 'visible')
+  map.setLayoutProperty('escuelas',  'visibility', 'visible')
+  map.setLayoutProperty('parques',  'visibility', 'visible')
+
+  // Marcar los checkboxes visualmente
+  const layers = ['municipio-bordes', 'escuelas', 'parques'];
+  layers.forEach(layer => {
+    const checkbox = document.querySelector(`input[onchange*="${layer}"]`);
+    if (checkbox) {
+      checkbox.checked = true;
+      const slider = checkbox.nextElementSibling;
+      if (slider) slider.classList.add('active');
+    }
+  });
+
+  // 3. Buscar municipio en el GeoJSON
+  if (geojsonMunicipios) {
+    const point = turf.point(lngLat);
+
+    const municipioEncontrado = geojsonMunicipios.features.find(mun => 
+      turf.booleanPointInPolygon(point, mun)
+    );
+
+    if (municipioEncontrado) {
+      const nom_ent = municipioEncontrado.properties.NOM_ENT;
+      const nom_geo = municipioEncontrado.properties.NOMGEO;
+      const cvegeo = municipioEncontrado.properties.CVEGEO;
+
+      console.log('Geocoder cayó en:', nom_ent, nom_geo);
+
+      // Actualizar dropdowns
+      document.getElementById('selector-estado').value = nom_ent;
+      filtrarPorEstado(nom_ent);
+
+      setTimeout(() => {
+        const selectorMunicipio = document.getElementById('select-municipio');
+        selectorMunicipio.disabled = false;
+        selectorMunicipio.value = cvegeo;
+      }, 300); // pequeño delay para que se llenen los municipios
+    } else {
+      console.warn('No se encontró municipio en el GeoJSON.');
+    }
+  } else {
+    console.error('geojsonMunicipios no está cargado.');
+  }
+});
+
+
+      // Toggle con ícono
+      const icon = document.getElementById('geocoder-icon');
+      const container = document.getElementById('geocoder-container');
+      icon.addEventListener('click', function() {
+        const visible = container.style.display === 'block';
+        container.style.display = visible ? 'none' : 'block';
+        if (!visible) {
+          setTimeout(() => {
+            const input = container.querySelector('input');
+            if (input) input.focus();
+          }, 100);
+        }
+      });
+
+      // Cierra el buscador si haces click fuera
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('#geocoder-container') && !e.target.closest('#geocoder-icon')) {
+          container.style.display = 'none';
+        }
+      });
+    }
+
+    function cargarCapas() {
+      const script = document.createElement('script');
+      script.src = 'scripts/capas.js';
+      script.onload = function() {
+      }
+      document.head.appendChild(script);
+    }
+
+    function seleccionarNivel(nivel) {
+  document.querySelectorAll('.mapa-tab').forEach(tab => tab.classList.remove('active'));
+  const tabActiva = document.getElementById(`tab-${nivel}`);
+  if (tabActiva) tabActiva.classList.add('active');
+
+  // Mostrar dropdowns
+  if (nivel === 'nacional') {
+    document.getElementById('dropdown-estatal').style.display = 'none';
+    document.getElementById('dropdown-municipal').style.display = 'none';
+  } else if (nivel === 'estatal') {
+    document.getElementById('dropdown-estatal').style.display = 'block';
+    document.getElementById('dropdown-municipal').style.display = 'none';
+  } else if (nivel === 'municipal') {
+    document.getElementById('dropdown-estatal').style.display = 'block';
+    document.getElementById('dropdown-municipal').style.display = 'block';
+    // PERO... deshabilitar municipios hasta que elijan estado
+    document.getElementById('select-municipio').disabled = true;
+  }
+
+  if (nivel === 'nacional') {
+    map.setLayoutProperty('escuelas', 'visibility', 'none');
+    map.setLayoutProperty('parques', 'visibility', 'none');
+    map.setFilter('escuelas', null);
+    map.setFilter('parques', null);
+
+    const checkboxEscuelas = document.querySelector(`input[onchange*="escuelas"]`);
+    const checkboxParques = document.querySelector(`input[onchange*="parques"]`);
+
+    checkboxEscuelas.checked = false;
+    checkboxParques.checked = false;
+    checkboxEscuelas.disabled = true;
+    checkboxParques.disabled = true;
+  } else {
+    const checkboxEscuelas = document.querySelector(`input[onchange*="escuelas"]`);
+    const checkboxParques = document.querySelector(`input[onchange*="parques"]`);
+
+    checkboxEscuelas.disabled = false;
+    checkboxParques.disabled = false;
+  }
+}
+
+    function initializeLayerControls() {
+      const layers = ['calles', 'escuelas', 'parques', 'homicidios', 'municipio-bordes'];
+      layers.forEach(layerId => {
+        const checkbox = document.querySelector(`input[onchange*="${layerId}"]`);
+        if (checkbox && map.getLayer(layerId)) {
+          const isVisible = map.getLayoutProperty(layerId, 'visibility') === 'visible';
+          checkbox.checked = isVisible;
+          const slider = checkbox.nextElementSibling;
+          if (slider) slider.classList.toggle('active', isVisible);
+        }
+      });
+    }
+  
+    // Diccionario: Nombre del Estado => Código CVE_ENT
+    const nombreEstadoACveEnt = {
+      "Aguascalientes": "01",
+      "Baja California": "02",
+      "Baja California Sur": "03",
+      "Campeche": "04",
+      "Coahuila de Zaragoza": "05",
+      "Colima": "06",
+      "Chiapas": "07",
+      "Chihuahua": "08",
+      "Ciudad de México": "09",
+      "Durango": "10",
+      "Guanajuato": "11",
+      "Guerrero": "12",
+      "Hidalgo": "13",
+      "Jalisco": "14",
+      "México": "15",
+      "Michoacán de Ocampo": "16",
+      "Morelos": "17",
+      "Nayarit": "18",
+      "Nuevo León": "19",
+      "Oaxaca": "20",
+      "Puebla": "21",
+      "Querétaro": "22",
+      "Quintana Roo": "23",
+      "San Luis Potosí": "24",
+      "Sinaloa": "25",
+      "Sonora": "26",
+      "Tabasco": "27",
+      "Tamaulipas": "28",
+      "Tlaxcala": "29",
+      "Veracruz de Ignacio de la Llave": "30",
+      "Yucatán": "31",
+      "Zacatecas": "32"
+    };
+
+    function cargarEstados() {
+  const selectorEstado = document.getElementById('selector-estado');
+  
+  // Limpia antes
+  selectorEstado.innerHTML = '<option value="">-- Estado --</option>';
+
+  for (const estado in nombreEstadoACveEnt) {
+    const option = document.createElement('option');
+    option.value = estado;
+    option.textContent = estado;
+    selectorEstado.appendChild(option);
+  }
+}
+
+function filtrarPorEstado(nombreEstado) {
+  console.log("Filtrando por estado:", nombreEstado);
+
+  const cveEnt = nombreEstadoACveEnt[nombreEstado];
+  if (!cveEnt) {
+    console.error("No se encontró el código para el estado:", nombreEstado);
+    return;
+  }
+
+  // Activar las capas en el mapa
+  map.setFilter('escuelas', ['==', ['get', 'CVE_ENT'], cveEnt]);
+  map.setFilter('parques', ['==', ['get', 'CVE_ENT'], cveEnt]);
+  map.setLayoutProperty('escuelas', 'visibility', 'visible');
+  map.setLayoutProperty('parques', 'visibility', 'visible');
+  document.querySelector(`input[onchange*="escuelas"]`).checked = true;
+  document.querySelector(`input[onchange*="parques"]`).checked = true;
+
+  const municipioSelect = document.getElementById('select-municipio');
+
+  if (document.getElementById('tab-municipal').classList.contains('active') && geojsonMunicipios) {
+    municipioSelect.disabled = false;
+    municipioSelect.innerHTML = '<option value="">-- Municipio --</option>';
+
+    const municipiosDelEstado = geojsonMunicipios.features.filter(
+      feature => feature.properties.CVEGEO.startsWith(cveEnt)
+    );
+
+    municipiosDelEstado.forEach(municipio => {
+      const option = document.createElement('option');
+      option.value = municipio.properties.CVEGEO; 
+      option.textContent = municipio.properties.NOMGEO; 
+      municipioSelect.appendChild(option);
+    });
+  }
+}
+
+
+function filtrarPorMunicipio(cvegeoMunicipio) {
+  console.log("Filtrando por municipio CVEGEO:", cvegeoMunicipio);
+
+  if (!cvegeoMunicipio || !geojsonMunicipios) {
+    console.error("No hay municipio seleccionado o municipios no cargados.");
+    return;
+  }
+
+  const municipio = geojsonMunicipios.features.find(
+    feature => feature.properties.CVEGEO === cvegeoMunicipio
+  );
+
+  if (!municipio) {
+    console.error("No se encontró el municipio con CVEGEO:", cvegeoMunicipio);
+    return;
+  }
+
+  const bounds = turf.bbox(municipio);
+  map.fitBounds(bounds, {
+    padding: 40,
+    maxZoom: 14,
+    duration: 1000
+  });
+
+  map.setLayoutProperty('municipio-bordes', 'visibility', 'visible');
+
+  const checkboxMunicipio = document.querySelector('input[onchange*="municipio-bordes"]');
+  if (checkboxMunicipio) {
+    checkboxMunicipio.checked = true;
+    const slider = checkboxMunicipio.nextElementSibling;
+    if (slider) {
+      slider.classList.add('active');
+    }
+  }
+}
+  </script>
+</body>
+</html>
