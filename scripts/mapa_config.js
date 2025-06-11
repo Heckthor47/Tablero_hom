@@ -17,7 +17,7 @@ map.on('load', () => {
   // 1. Capa de calles
   map.addSource('calles', {
     type: 'geojson',
-    data: 'https://drive.google.com/uc?export=download&id=1otnz1Zjg0mLDpFynX687rO3yemFWT13F/view?usp=drive_link'
+    data: 'https://shiny-griffin-1f2c40.netlify.app/calles.geojson'
   });
   
   map.addLayer({
@@ -45,7 +45,7 @@ map.on('load', () => {
   // 5. Capa de AGEBs
   map.addSource('municipio', {
     type: 'geojson',
-    data: 'https://drive.google.com/uc?export=download&id=1Fnd2xjl-dIGMxFnD_mMG_WkPkAf6u1DL/view?usp=drive_link',
+    data: 'https://shiny-griffin-1f2c40.netlify.app/municip.geojson',
     promoteId: 'CVEGEO' // Usar CVEGEO como ID único
   });
   
@@ -77,7 +77,7 @@ map.on('load', () => {
     
     map.addSource('escuelas', {
       type: 'geojson',
-      data: 'https://drive.google.com/uc?export=download&id=1_JY8hX4iExIgWiR_DMQBrLQcnu4ko5bR/view?usp=drive_link'
+      data: 'https://shiny-griffin-1f2c40.netlify.app/escuelas.geojson'
     });
     
     map.addLayer({
@@ -104,7 +104,7 @@ map.on('load', () => {
     
     map.addSource('parques', {
       type: 'geojson',
-      data: 'https://drive.google.com/uc?export=download&id=1TsKkNcZAXVdI9xhj2gmbAS_-v_DMhCHp/view?usp=drive_link'
+      data: 'https://shiny-griffin-1f2c40.netlify.app/parques.geojson'
     });
     
     map.addLayer({
