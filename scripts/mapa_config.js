@@ -122,7 +122,7 @@ map.on('load', () => {
   // 4. Capa de homicidios
   map.addSource('homicidios', {
     type: 'geojson',
-    data: 'data/homicidios.geojson'
+    data: 'https://shiny-griffin-1f2c40.netlify.app/homicidios.geojson'
   });
   
   map.addLayer({
@@ -250,7 +250,7 @@ map.on('load', () => {
 
 let municipiosGeoJSON = null;
 
-fetch('data/municip.geojson')
+fetch('https://shiny-griffin-1f2c40.netlify.app/municip.geojson/municip.geojson')
   .then(res => res.json())
   .then(data => {
     municipiosGeoJSON = data;
