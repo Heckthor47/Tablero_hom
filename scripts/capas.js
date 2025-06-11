@@ -43,8 +43,8 @@ window.toggleLayer = toggleLayer;
 window.initializeLayerControls = initializeLayerControls;
 
 // Inicialización automática
-if (window.map && window.map.isStyleLoaded()) {
+if (window.map && typeof window.map.isStyleLoaded === 'function' && window.map.isStyleLoaded()) {
     initializeLayerControls();
-} else {
-    window.addEventListener('map-loaded', initializeLayerControls);
+} else if (window.map) {
+    window.map.on('load', initializeLayerControls);
 }
