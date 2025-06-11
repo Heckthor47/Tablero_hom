@@ -17,7 +17,7 @@ map.on('load', () => {
   // 1. Capa de calles
   map.addSource('calles', {
     type: 'geojson',
-    data: 'https://shiny-griffin-1f2c40.netlify.app/calles.geojson'
+    data: 'https://starlit-cactus-3d1ba2.netlify.app/calles.geojson'
   });
   
   map.addLayer({
@@ -45,7 +45,7 @@ map.on('load', () => {
   // 5. Capa de AGEBs
   map.addSource('municipio', {
     type: 'geojson',
-    data: 'https://shiny-griffin-1f2c40.netlify.app/municip.geojson',
+    data: 'https://starlit-cactus-3d1ba2.netlify.app/municip.geojson',
     promoteId: 'CVEGEO' // Usar CVEGEO como ID único
   });
   
@@ -77,7 +77,7 @@ map.on('load', () => {
     
     map.addSource('escuelas', {
       type: 'geojson',
-      data: 'https://shiny-griffin-1f2c40.netlify.app/escuelas.geojson'
+      data: 'https://starlit-cactus-3d1ba2.netlify.app/escuelas.geojson'
     });
     
     map.addLayer({
@@ -104,7 +104,7 @@ map.on('load', () => {
     
     map.addSource('parques', {
       type: 'geojson',
-      data: 'https://shiny-griffin-1f2c40.netlify.app/parques.geojson'
+      data: 'https://starlit-cactus-3d1ba2.netlify.app/parques.geojson'
     });
     
     map.addLayer({
@@ -122,7 +122,7 @@ map.on('load', () => {
   // 4. Capa de homicidios
   map.addSource('homicidios', {
     type: 'geojson',
-    data: 'https://shiny-griffin-1f2c40.netlify.app/homicidios.geojson'
+    data: 'https://starlit-cactus-3d1ba2.netlify.app/homicidios.geojson'
   });
   
   map.addLayer({
@@ -250,7 +250,7 @@ map.on('load', () => {
 
 let municipiosGeoJSON = null;
 
-fetch('https://shiny-griffin-1f2c40.netlify.app/municip.geojson/municip.geojson')
+fetch('https://starlit-cactus-3d1ba2.netlify.app/municip.geojson')
   .then(res => res.json())
   .then(data => {
     municipiosGeoJSON = data;
